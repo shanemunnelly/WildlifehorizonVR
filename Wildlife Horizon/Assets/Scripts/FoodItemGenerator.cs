@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class FoodItemGenerator : MonoBehaviour
 {
@@ -6,45 +7,38 @@ public class FoodItemGenerator : MonoBehaviour
     [SerializeField] GameObject FoodUI;
     [SerializeField] GameObject interactButton;
 
-    private Camera mainCamera;
-    private RaycastHit hit;
+    private XRGrabInteractable grabInteractable;
 
     private void Start()
     {
-        mainCamera = Camera.main;
-        interactButton.SetActive(false); // Initially, hide the interact button
+        grabInteractable = GetComponent<XRGrabInteractable>();
+
+        // Initially, hide the interact button
+        interactButton.SetActive(false);
+
+        // Subscribe to grab events
+        grabInteractable.onSelectEntered.AddListener(OnGrab);
+        grabInteractable.onSelectExited.AddListener(OnRelease);
     }
 
-    private void Update()
+    private void OnGrab(XRBaseInteractor interactor)
     {
-        // Cast a ray from the main camera
-        Ray ray = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            // Check if the ray hits the object attached to this script
-            if (hit.collider.gameObject == gameObject)
-            {
-                // Show the interact button
-                interactButton.SetActive(true);
-
-                // Check if the player presses the interact button
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    GenerateFoodItem();
-                }
-            }
-            else
-            {
-                // Hide the interact button if the player looks away
-                interactButton.SetActive(false);
-            }
-        }
+        GenerateFoodItem();
     }
 
+    private void OnRelease(XRBaseInteractor interactor)
+    {
+    }
+    public void Revealbutton()
+    {
+        interactButton.SetActive(true);
+    }
+    public void CloseMenu()
+    {
+        interactButton.SetActive(false);
+    }
     public void GenerateFoodItem()
     {
         FoodUI.SetActive(true);
-
     }
 }
